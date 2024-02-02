@@ -30,6 +30,12 @@
         android:layout_below="@id/etPassword"
         android:text="Iniciar Sesión" />
 
-    <!-- Puedes añadir más elementos de diseño según tus necesidades -->
-
+    <Button
+        android:id="@+id/btnGoToRegister"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Registrarse"
+        android:layout_below="@id/txtUsername"
+        android:layout_marginTop="20dp"
+        android:onClick="goToRegister"/>
 </RelativeLayout>

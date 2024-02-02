@@ -17,7 +17,7 @@ import com.google.firebase.auth.FirebaseAuth;
 public class LoginActivity extends AppCompatActivity {
     private EditText etEmail, etPassword;
     private Button btnLogin;
-
+    private Button btnRegister;
     private FirebaseAuth mAuth;
 
     @Override
@@ -28,6 +28,7 @@ public class LoginActivity extends AppCompatActivity {
         etEmail = findViewById(R.id.etEmail);
         etPassword = findViewById(R.id.etPassword);
         btnLogin = findViewById(R.id.btnLogin);
+        btnRegister = findViewById();
 
         mAuth = FirebaseAuth.getInstance();
 
@@ -42,11 +43,8 @@ public class LoginActivity extends AppCompatActivity {
                             @Override
                             public void onComplete(@NonNull Task<AuthResult> task) {
                                 if (task.isSuccessful()) {
-                                    // Inicio de sesión exitoso, ir a la pantalla principal
                                     Toast.makeText(LoginActivity.this, "Inicio de sesión correctamente", Toast.LENGTH_SHORT).show();
-                                    // Aquí deberías pasar a la pantalla principal o la lista de documentos
                                 } else {
-                                    // Si falla el inicio de sesión, mostrar un mensaje de error
                                     Toast.makeText(LoginActivity.this, "Inicio de sesión fallido", Toast.LENGTH_SHORT).show();
                                 }
                             }
