@@ -9,7 +9,7 @@
       "client_info": {
         "mobilesdk_app_id": "1:567477789143:android:01fab2395629d45da76b92",
         "android_client_info": {
-          "package_name": "com.android.application"
+          "package_name": "com.matias.firebase"
         }
       },
       "oauth_client": [],
