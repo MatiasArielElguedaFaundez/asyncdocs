@@ -48,8 +48,6 @@ public class DocumentListActivity extends AppCompatActivity {
             }
         });
     }
-
-    // Método para abrir FragmentEditText con el documento seleccionado
     private void openFragmentEditText(String documentTitle) {
         FragmentEditText fragmentEditText = new FragmentEditText();
         Bundle args = new Bundle();
@@ -58,7 +56,7 @@ public class DocumentListActivity extends AppCompatActivity {
 
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction transaction = fragmentManager.beginTransaction();
-        transaction.replace(R.id.fragment_container, fragmentEditText); // Asegúrate de tener un contenedor de fragmentos en activity_document_list.xml con el ID "fragment_container"
+        transaction.replace(R.id.fragment_container, fragmentEditText);
         transaction.addToBackStack(null);
         transaction.commit();
 
@@ -70,7 +68,6 @@ public class DocumentListActivity extends AppCompatActivity {
         }, 1000);
     }
 
-    // Método para ocultar el ProgressDialog
     private void hideLoadingScreen() {
         if (progressDialog != null && progressDialog.isShowing()) {
             progressDialog.dismiss();
