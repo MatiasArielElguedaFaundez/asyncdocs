@@ -46,7 +46,11 @@ public class FragmentEditText extends Fragment {
         if (getArguments() != null && getArguments().containsKey("documentId")) {
             documentId = getArguments().getString("documentId");
         }
-        loadDocumentInfo();
+        if (documentId != null) {
+            loadDocumentInfo();
+        } else {
+            Toast.makeText(getActivity(), "ID del documento es nulo", Toast.LENGTH_SHORT).show();
+        }
 
         btnUpdate.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -70,7 +74,7 @@ public class FragmentEditText extends Fragment {
                     editorFcmToken = documentSnapshot.getString("fcmToken");
                     etTitle.setText(currentTitle);
                     etBody.setText(currentBody);
-                    if (editingUserId != null && !editingUserId.equals(mAuth.getCurrentUser().getUid())) {
+                    if (editingUserId != null && mAuth.getCurrentUser() != null && !editingUserId.equals(mAuth.getCurrentUser().getUid())) {
                         showEditingMessage();
                         sendEditingNotification(editorFcmToken);
                     }
@@ -124,7 +128,6 @@ public class FragmentEditText extends Fragment {
                 .addData("title", "Documento en edición")
                 .addData("body", "El documento que estás editando está siendo modificado por otro usuario.")
                 .build());
-
         Toast.makeText(getActivity(), "Notificación enviada al usuario que está editando.", Toast.LENGTH_SHORT).show();
     }
 }

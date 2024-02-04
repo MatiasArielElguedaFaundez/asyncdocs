@@ -1,6 +1,7 @@
 package com.matias.firebase;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -55,6 +56,8 @@ public class RegisterActivity extends AppCompatActivity {
                         if (task.isSuccessful()) {
                             Toast.makeText(RegisterActivity.this, "Registro exitoso", Toast.LENGTH_SHORT).show();
                         } else {
+                            Log.e("Registro Fallido", "Error al registrar", task.getException());
+                            task.getException().printStackTrace();
                             Toast.makeText(RegisterActivity.this, "Error al registrar. Por favor, inténtelo de nuevo.", Toast.LENGTH_SHORT).show();
                         }
                     }
