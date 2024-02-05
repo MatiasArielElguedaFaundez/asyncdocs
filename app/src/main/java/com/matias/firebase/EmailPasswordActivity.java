@@ -1,5 +1,7 @@
 package com.matias.firebase;
 
+import android.app.Activity;
+import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -9,6 +11,8 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -93,12 +97,14 @@ public class EmailPasswordActivity extends AppCompatActivity {
                         if (task.isSuccessful()) {
                             Log.d(TAG, "signInWithEmail:success");
                             FirebaseUser user = mAuth.getCurrentUser();
+                            Context context = EmailPasswordActivity.this;
 
+                            NavController navController = Navigation.findNavController((Activity) context, R.id.nav_host_fragment);
+                            navController.navigate(R.id.action_emailPassword_to_documentList);
                         } else {
                             Log.w(TAG, "signInWithEmail:failure", task.getException());
                             String errorMessage = task.getException().getMessage();
                             Toast.makeText(EmailPasswordActivity.this, "Authentication failed: " + errorMessage, Toast.LENGTH_SHORT).show();
-
                         }
                     }
                 });
