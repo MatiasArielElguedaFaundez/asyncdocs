@@ -15,7 +15,6 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
 import java.util.List;
-
 public class DocumentListActivity extends AppCompatActivity {
     private ListView documentListView;
     private List<Document> documentList;
