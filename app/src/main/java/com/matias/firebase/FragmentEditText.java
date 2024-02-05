@@ -31,18 +31,14 @@ public class FragmentEditText extends Fragment {
     private String editingUserId;
     private String documentId;
     private String editorFcmToken;
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_edit_text, container, false);
-
         mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
-
         etTitle = view.findViewById(R.id.etTitle);
         etBody = view.findViewById(R.id.etBody);
         btnUpdate = view.findViewById(R.id.btnUpdate);
-
         if (getArguments() != null && getArguments().containsKey("documentId")) {
             documentId = getArguments().getString("documentId");
         }
@@ -51,17 +47,14 @@ public class FragmentEditText extends Fragment {
         } else {
             Toast.makeText(getActivity(), "ID del documento es nulo", Toast.LENGTH_SHORT).show();
         }
-
         btnUpdate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 updateDocument();
             }
         });
-
         return view;
     }
-
     private void loadDocumentInfo() {
         DocumentReference documentRef = db.collection("documents").document(documentId);
         documentRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
@@ -89,11 +82,9 @@ public class FragmentEditText extends Fragment {
             }
         });
     }
-
     private void updateDocument() {
         String newTitle = etTitle.getText().toString().trim();
         String newBody = etBody.getText().toString().trim();
-
         if (newTitle.isEmpty() || newBody.isEmpty()) {
             Toast.makeText(getActivity(), "Por favor, complete todos los campos", Toast.LENGTH_SHORT).show();
             return;
@@ -114,14 +105,11 @@ public class FragmentEditText extends Fragment {
                     }
                 });
     }
-
     private void showEditingMessage() {
         Toast.makeText(getActivity(), "Este documento está siendo editado por otro usuario", Toast.LENGTH_SHORT).show();
     }
-
     private void sendEditingNotification(String editorToken) {
         String currentUserToken = "token_del_usuario_actual";
-
         // hay que mejorar esto
         FirebaseMessaging.getInstance().send(new RemoteMessage.Builder(editorToken)
                 .setMessageId(Integer.toString(0))

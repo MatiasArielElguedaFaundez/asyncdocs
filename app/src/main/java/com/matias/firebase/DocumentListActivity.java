@@ -20,19 +20,14 @@ public class DocumentListActivity extends AppCompatActivity {
     private ListView documentListView;
     private ArrayList<String> documentTitles;
     private ProgressDialog progressDialog;
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_document_list);
-
         documentTitles = new ArrayList<>();
-
         documentListView = findViewById(R.id.documentListView);
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, documentTitles);
         documentListView.setAdapter(adapter);
-
         documentListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -40,7 +35,6 @@ public class DocumentListActivity extends AppCompatActivity {
                 openFragmentEditText(selectedDocumentTitle);
             }
         });
-
         findViewById(R.id.btnAddDocument).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -53,13 +47,11 @@ public class DocumentListActivity extends AppCompatActivity {
         Bundle args = new Bundle();
         args.putString("documentTitle", documentTitle);
         fragmentEditText.setArguments(args);
-
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction transaction = fragmentManager.beginTransaction();
         transaction.replace(R.id.fragment_container, fragmentEditText);
         transaction.addToBackStack(null);
         transaction.commit();
-
         new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
             @Override
             public void run() {
@@ -67,7 +59,6 @@ public class DocumentListActivity extends AppCompatActivity {
             }
         }, 1000);
     }
-
     private void hideLoadingScreen() {
         if (progressDialog != null && progressDialog.isShowing()) {
             progressDialog.dismiss();

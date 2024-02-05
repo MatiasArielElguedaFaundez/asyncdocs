@@ -11,17 +11,14 @@ import android.os.Looper;
 import android.widget.TextView;
 
 public class MainActivity extends AppCompatActivity {
-
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
         transaction.replace(R.id.fragment_container, new FragmentEditText());
         transaction.commit();
     }
-
     @Override
     protected void onStart() {
         super.onStart();
