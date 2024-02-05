@@ -1,7 +1,5 @@
 package com.matias.firebase;
 
-import static android.app.PendingIntent.getActivity;
-
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -24,13 +22,14 @@ import com.google.firebase.messaging.RemoteMessage;
 import androidx.annotation.NonNull;
 
 public class FragmentEditText extends Fragment {
-    private EditText etTitle, etBody;
+    private EditText etTitle, etBody, etDocumentId;
     private Button btnUpdate;
     private FirebaseAuth mAuth;
     private FirebaseFirestore db;
     private String editingUserId;
     private String documentId;
     private String editorFcmToken;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_edit_text, container, false);
@@ -39,22 +38,29 @@ public class FragmentEditText extends Fragment {
         etTitle = view.findViewById(R.id.etTitle);
         etBody = view.findViewById(R.id.etBody);
         btnUpdate = view.findViewById(R.id.btnUpdate);
+        etDocumentId = view.findViewById(R.id.etDocumentId);
+
         if (getArguments() != null && getArguments().containsKey("documentId")) {
             documentId = getArguments().getString("documentId");
+            etDocumentId.setText(documentId);
         }
+
         if (documentId != null) {
             loadDocumentInfo();
         } else {
             Toast.makeText(getActivity(), "ID del documento es nulo", Toast.LENGTH_SHORT).show();
         }
+
         btnUpdate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 updateDocument();
             }
         });
+
         return view;
     }
+
     private void loadDocumentInfo() {
         DocumentReference documentRef = db.collection("documents").document(documentId);
         documentRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
@@ -67,6 +73,7 @@ public class FragmentEditText extends Fragment {
                     editorFcmToken = documentSnapshot.getString("fcmToken");
                     etTitle.setText(currentTitle);
                     etBody.setText(currentBody);
+
                     if (editingUserId != null && mAuth.getCurrentUser() != null && !editingUserId.equals(mAuth.getCurrentUser().getUid())) {
                         showEditingMessage();
                         sendEditingNotification(editorFcmToken);
@@ -82,13 +89,16 @@ public class FragmentEditText extends Fragment {
             }
         });
     }
+
     private void updateDocument() {
         String newTitle = etTitle.getText().toString().trim();
         String newBody = etBody.getText().toString().trim();
+
         if (newTitle.isEmpty() || newBody.isEmpty()) {
             Toast.makeText(getActivity(), "Por favor, complete todos los campos", Toast.LENGTH_SHORT).show();
             return;
         }
+
         DocumentReference documentRef = db.collection("documents").document(documentId);
         documentRef
                 .update("title", newTitle, "body", newBody)
@@ -105,9 +115,11 @@ public class FragmentEditText extends Fragment {
                     }
                 });
     }
+
     private void showEditingMessage() {
         Toast.makeText(getActivity(), "Este documento está siendo editado por otro usuario", Toast.LENGTH_SHORT).show();
     }
+
     private void sendEditingNotification(String editorToken) {
         String currentUserToken = "token_del_usuario_actual";
         // hay que mejorar esto
