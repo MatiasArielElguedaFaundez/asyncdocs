@@ -34,7 +34,7 @@ public class FragmentEditText extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_edit_text, container, false);
+        View view = inflater.inflate(R.layout.activity_document, container, false);
 
         mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();

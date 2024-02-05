@@ -56,7 +56,7 @@ public class DocumentListActivity extends AppCompatActivity {
 
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction transaction = fragmentManager.beginTransaction();
-        transaction.replace(R.id.fragment_container, fragmentEditText);
+        transaction.replace(R.id.documentListView, fragmentEditText);
         transaction.addToBackStack(null);
         transaction.commit();
 
