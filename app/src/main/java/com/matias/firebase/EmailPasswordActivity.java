@@ -45,7 +45,6 @@ public class EmailPasswordActivity extends AppCompatActivity {
                 String email = emailEditText.getText().toString();
                 String password = passwordEditText.getText().toString();
 
-                // Llamar a función de inicio de sesión
                 signIn(email, password);
             }
         });
@@ -56,8 +55,6 @@ public class EmailPasswordActivity extends AppCompatActivity {
                 // Capturar entradas del usuario
                 String email = emailEditText.getText().toString();
                 String password = passwordEditText.getText().toString();
-
-                // Llamar a función de creación de cuenta
                 createAccount(email, password);
             }
         });
@@ -67,7 +64,6 @@ public class EmailPasswordActivity extends AppCompatActivity {
     public void onStart() {
         super.onStart();
         FirebaseUser currentUser = mAuth.getCurrentUser();
-        // No hay llamada a reload
     }
 
     public void createAccount(String email, String password) {
@@ -97,12 +93,12 @@ public class EmailPasswordActivity extends AppCompatActivity {
                         if (task.isSuccessful()) {
                             Log.d(TAG, "signInWithEmail:success");
                             FirebaseUser user = mAuth.getCurrentUser();
-                            // No hay llamada a updateUI
+
                         } else {
                             Log.w(TAG, "signInWithEmail:failure", task.getException());
                             String errorMessage = task.getException().getMessage();
                             Toast.makeText(EmailPasswordActivity.this, "Authentication failed: " + errorMessage, Toast.LENGTH_SHORT).show();
-                            // No hay llamada a updateUI
+
                         }
                     }
                 });
