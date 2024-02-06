@@ -26,6 +26,7 @@ public class FragmentEditText extends Fragment {
     private String editingUserId;
     private String documentId;
     private String editorFcmToken;
+    private String userId;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -37,13 +38,16 @@ public class FragmentEditText extends Fragment {
         btnUpdate = view.findViewById(R.id.btnUpdate);
         etDocumentId = view.findViewById(R.id.etDocumentId);
 
+        if (getArguments() != null && getArguments().containsKey("userId")) {
+            userId = getArguments().getString("userId");
+        }
+
         if (getArguments() != null && getArguments().containsKey("documentId")) {
             documentId = getArguments().getString("documentId");
             if (documentId != null) {
                 etDocumentId.setText(documentId);
                 loadDocumentInfo();
             } else {
-                // Manejar el caso cuando documentId es nulo
                 new AlertDialog.Builder(getActivity())
                         .setTitle("Error")
                         .setMessage("ID del documento es nulo.")

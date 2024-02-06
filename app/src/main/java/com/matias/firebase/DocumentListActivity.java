@@ -11,6 +11,7 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -42,7 +43,7 @@ public class DocumentListActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Document selectedDocument = documentList.get(position);
-                openFragmentEditText(selectedDocument.getDocumentId());
+                openEditActivity(selectedDocument.getDocumentId());
             }
         });
 
@@ -113,8 +114,10 @@ public class DocumentListActivity extends AppCompatActivity {
     }
 
     private void openEditActivity(String documentId) {
+        String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
         Intent intent = new Intent(this, EditActivity.class);
         intent.putExtra("documentId", documentId);
+        intent.putExtra("userId", userId);
         startActivity(intent);
     }
 }
