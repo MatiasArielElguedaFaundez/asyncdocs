@@ -1,21 +1,26 @@
 package com.matias.firebase;
+
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.List;
+
 public class DocumentListActivity extends AppCompatActivity {
+
     private ListView documentListView;
     private List<Document> documentList;
     private ProgressDialog progressDialog;
@@ -91,16 +96,9 @@ public class DocumentListActivity extends AppCompatActivity {
     }
 
     private void openFragmentEditText(String documentId) {
-        FragmentEditText fragmentEditText = new FragmentEditText();
-        Bundle args = new Bundle();
-        args.putString("documentId", documentId);
-        fragmentEditText.setArguments(args);
-
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        FragmentTransaction transaction = fragmentManager.beginTransaction();
-        transaction.replace(R.id.fragment_container, fragmentEditText);
-        transaction.addToBackStack(null);
-        transaction.commit();
+        Intent intent = new Intent(DocumentListActivity.this, FragmentEditText.class);
+        intent.putExtra("documentId", documentId);
+        startActivity(intent);
     }
 
     private void hideLoadingScreen() {

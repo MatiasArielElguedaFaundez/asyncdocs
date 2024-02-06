@@ -8,6 +8,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 
 import com.google.android.gms.tasks.OnFailureListener;
@@ -117,11 +118,15 @@ public class FragmentEditText extends Fragment {
     }
 
     private void showEditingMessage() {
-        Toast.makeText(getActivity(), "Este documento está siendo editado por otro usuario", Toast.LENGTH_SHORT).show();
+        new AlertDialog.Builder(getActivity())
+                .setTitle("Documento en edición")
+                .setMessage("Este documento está siendo editado por otro usuario.")
+                .setPositiveButton("Aceptar", null)
+                .show();
     }
 
     private void sendEditingNotification(String editorToken) {
-        String currentUserToken = "token_del_usuario_actual";
+        String currentUserToken = FirebaseMessaging.getInstance().getToken().getResult();
         // hay que mejorar esto
         FirebaseMessaging.getInstance().send(new RemoteMessage.Builder(editorToken)
                 .setMessageId(Integer.toString(0))
