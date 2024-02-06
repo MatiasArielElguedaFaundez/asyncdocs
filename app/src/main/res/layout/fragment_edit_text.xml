@@ -23,7 +23,14 @@
         android:id="@+id/fragment_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/btnUpdate"/>
+        android:layout_below="@id/btnUpdate">
+
+        <EditText
+            android:id="@+id/editTextDocumentId"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Enter document ID"/>
+    </FrameLayout>
 
     <EditText
         android:id="@+id/etBody"

@@ -19,14 +19,13 @@ import com.google.firebase.messaging.RemoteMessage;
 import androidx.annotation.NonNull;
 
 public class FragmentEditText extends Fragment {
-    private EditText etTitle, etBody, etDocumentId;
+    private EditText etTitle, etBody, etDocumentId, documentIdEditText;
     private Button btnUpdate;
     private FirebaseAuth mAuth;
     private FirebaseFirestore db;
     private String editingUserId;
     private String documentId;
     private String editorFcmToken;
-    private String userId;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -37,15 +36,12 @@ public class FragmentEditText extends Fragment {
         etBody = view.findViewById(R.id.etBody);
         btnUpdate = view.findViewById(R.id.btnUpdate);
         etDocumentId = view.findViewById(R.id.etDocumentId);
-
-        if (getArguments() != null && getArguments().containsKey("userId")) {
-            userId = getArguments().getString("userId");
-        }
+        documentIdEditText = view.findViewById(R.id.editTextDocumentId); // Asociar con el nuevo EditText
 
         if (getArguments() != null && getArguments().containsKey("documentId")) {
             documentId = getArguments().getString("documentId");
             if (documentId != null) {
-                etDocumentId.setText(documentId);
+                documentIdEditText.setText(documentId);
                 loadDocumentInfo();
             } else {
                 new AlertDialog.Builder(getActivity())
@@ -104,6 +100,8 @@ public class FragmentEditText extends Fragment {
     }
 
     private void updateDocument() {
+        documentId = documentIdEditText.getText().toString().trim(); // Obtener el nuevo ID del documento
+
         if (documentId == null) {
             new AlertDialog.Builder(getActivity())
                     .setTitle("Error")
@@ -112,6 +110,7 @@ public class FragmentEditText extends Fragment {
                     .show();
             return;
         }
+
         String newTitle = etTitle.getText().toString().trim();
         String newBody = etBody.getText().toString().trim();
 

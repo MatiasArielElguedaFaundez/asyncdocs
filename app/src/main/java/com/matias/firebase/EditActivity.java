@@ -1,7 +1,6 @@
 package com.matias.firebase;
 
 import android.os.Bundle;
-
 import androidx.appcompat.app.AppCompatActivity;
 
 public class EditActivity extends AppCompatActivity {
