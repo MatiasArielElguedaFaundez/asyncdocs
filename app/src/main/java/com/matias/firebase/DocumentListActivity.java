@@ -8,13 +8,11 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.Toast;
-import androidx.annotation.NonNull;
+
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
+
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -51,7 +49,7 @@ public class DocumentListActivity extends AppCompatActivity {
         findViewById(R.id.btnAddDocument).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                openFragmentEditText(null);
+                openEditActivity(null);
             }
         });
 
@@ -112,5 +110,11 @@ public class DocumentListActivity extends AppCompatActivity {
         progressDialog.setMessage(message);
         progressDialog.setCancelable(false);
         progressDialog.show();
+    }
+
+    private void openEditActivity(String documentId) {
+        Intent intent = new Intent(this, EditActivity.class);
+        intent.putExtra("documentId", documentId);
+        startActivity(intent);
     }
 }

@@ -6,11 +6,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Toast;
-
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
-
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
@@ -19,7 +16,6 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.RemoteMessage;
-
 import androidx.annotation.NonNull;
 
 public class FragmentEditText extends Fragment {
@@ -43,13 +39,17 @@ public class FragmentEditText extends Fragment {
 
         if (getArguments() != null && getArguments().containsKey("documentId")) {
             documentId = getArguments().getString("documentId");
-            etDocumentId.setText(documentId);
-        }
-
-        if (documentId != null) {
-            loadDocumentInfo();
-        } else {
-            Toast.makeText(getActivity(), "ID del documento es nulo", Toast.LENGTH_SHORT).show();
+            if (documentId != null) {
+                etDocumentId.setText(documentId);
+                loadDocumentInfo();
+            } else {
+                // Manejar el caso cuando documentId es nulo
+                new AlertDialog.Builder(getActivity())
+                        .setTitle("Error")
+                        .setMessage("ID del documento es nulo.")
+                        .setPositiveButton("Aceptar", null)
+                        .show();
+            }
         }
 
         btnUpdate.setOnClickListener(new View.OnClickListener() {
@@ -80,23 +80,43 @@ public class FragmentEditText extends Fragment {
                         sendEditingNotification(editorFcmToken);
                     }
                 } else {
-                    Toast.makeText(getActivity(), "El documento no existe", Toast.LENGTH_SHORT).show();
+                    new AlertDialog.Builder(getActivity())
+                            .setTitle("Error")
+                            .setMessage("El documento no existe.")
+                            .setPositiveButton("Aceptar", null)
+                            .show();
                 }
             }
         }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
-                Toast.makeText(getActivity(), "Error al cargar el documento", Toast.LENGTH_SHORT).show();
+                new AlertDialog.Builder(getActivity())
+                        .setTitle("Error")
+                        .setMessage("Error al cargar el documento.")
+                        .setPositiveButton("Aceptar", null)
+                        .show();
             }
         });
     }
 
     private void updateDocument() {
+        if (documentId == null) {
+            new AlertDialog.Builder(getActivity())
+                    .setTitle("Error")
+                    .setMessage("ID del documento es nulo.")
+                    .setPositiveButton("Aceptar", null)
+                    .show();
+            return;
+        }
         String newTitle = etTitle.getText().toString().trim();
         String newBody = etBody.getText().toString().trim();
 
         if (newTitle.isEmpty() || newBody.isEmpty()) {
-            Toast.makeText(getActivity(), "Por favor, complete todos los campos", Toast.LENGTH_SHORT).show();
+            new AlertDialog.Builder(getActivity())
+                    .setTitle("Error")
+                    .setMessage("Por favor, complete todos los campos.")
+                    .setPositiveButton("Aceptar", null)
+                    .show();
             return;
         }
 
@@ -106,13 +126,21 @@ public class FragmentEditText extends Fragment {
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-                        Toast.makeText(getActivity(), "Documento actualizado correctamente", Toast.LENGTH_SHORT).show();
+                        new AlertDialog.Builder(getActivity())
+                                .setTitle("Éxito")
+                                .setMessage("Documento actualizado correctamente.")
+                                .setPositiveButton("Aceptar", null)
+                                .show();
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        Toast.makeText(getActivity(), "Error al actualizar el documento", Toast.LENGTH_SHORT).show();
+                        new AlertDialog.Builder(getActivity())
+                                .setTitle("Error")
+                                .setMessage("Error al actualizar el documento.")
+                                .setPositiveButton("Aceptar", null)
+                                .show();
                     }
                 });
     }
@@ -133,6 +161,10 @@ public class FragmentEditText extends Fragment {
                 .addData("title", "Documento en edición")
                 .addData("body", "El documento que estás editando está siendo modificado por otro usuario.")
                 .build());
-        Toast.makeText(getActivity(), "Notificación enviada al usuario que está editando.", Toast.LENGTH_SHORT).show();
+        new AlertDialog.Builder(getActivity())
+                .setTitle("Éxito")
+                .setMessage("Notificación enviada al usuario que está editando.")
+                .setPositiveButton("Aceptar", null)
+                .show();
     }
 }
