@@ -1,5 +1,7 @@
 package com.matias.firebase;
 
+import static com.firebase.ui.auth.AuthUI.getApplicationContext;
+
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -37,6 +39,8 @@ public class FragmentEditText extends Fragment {
         btnUpdate = view.findViewById(R.id.btnUpdate);
         etDocumentId = view.findViewById(R.id.etDocumentId);
         documentIdEditText = view.findViewById(R.id.editTextDocumentId); // Asociar con el nuevo EditText
+        FirestoreDataExporter dataExporter = new FirestoreDataExporter();
+        dataExporter.exportFirestoreData(getApplicationContext());
 
         if (getArguments() != null && getArguments().containsKey("documentId")) {
             documentId = getArguments().getString("documentId");
