@@ -21,6 +21,9 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FieldValue;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 public class RegisterActivity extends AppCompatActivity {
     private EditText usernameEditText;
@@ -60,48 +63,48 @@ public class RegisterActivity extends AppCompatActivity {
             return;
         }
 
-        firebaseAuth.createUserWithEmailAndPassword(email, password)
-                .addOnCompleteListener(RegisterActivity.this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        if (task.isSuccessful()) {
-                            String userId = firebaseAuth.getCurrentUser().getUid();
+        // Obtener referencia al documento controlador
+        DocumentReference controladorRef = FirebaseFirestore.getInstance().collection("users").document("controlador");
 
-                            // Establecer ambos registros en false al principio
-                            registrationStatusRef.child(userId).child("registro1").setValue(false);
-                            registrationStatusRef.child(userId).child("registro2").setValue(false);
-
-                            // Actualizar a true según tus condiciones específicas
-                            // Ejemplo: actualizar a true si el usuario se registró correctamente
-                            registrationStatusRef.child(userId).child("registro1").setValue(true);
-
-                            // Verificar si ambos registros son true y actualizar el segundo registro
-                            registrationStatusRef.child(userId).child("registro1").addListenerForSingleValueEvent(new ValueEventListener() {
-                                @Override
-                                public void onDataChange(@NonNull DataSnapshot snapshot) {
-                                    boolean registro1 = snapshot.getValue(Boolean.class);
-                                    if (registro1) {
-                                        // Ambos registros son true, actualizar registro2
-                                        registrationStatusRef.child(userId).child("registro2").setValue(true);
-                                    }
-                                }
-
-                                @Override
-                                public void onCancelled(@NonNull DatabaseError error) {
-                                    Toast.makeText(RegisterActivity.this, "Error en la base de datos", Toast.LENGTH_SHORT).show();
-                                }
-                            });
-
-                            Toast.makeText(RegisterActivity.this, "Registro exitoso", Toast.LENGTH_SHORT).show();
-
-                            // Redirigir a la actividad deseada después del registro
-                            startActivity(new Intent(RegisterActivity.this, DocumentListActivity.class));
-                            finish();
+        // Incrementar el contador y obtener el nuevo valor
+        controladorRef.update("registros", FieldValue.increment(1))
+                .addOnSuccessListener(aVoid -> {
+                    controladorRef.get().addOnSuccessListener(documentSnapshot -> {
+                        long nuevoContador = documentSnapshot.getLong("registros");
+                        if (nuevoContador <= 2) {
+                            // Continuar con el registro del usuario
+                            performUserRegistration(email, password);
                         } else {
-                            String errorMessage = task.getException().getMessage();
-                            Toast.makeText(RegisterActivity.this, "Error al registrar. " + errorMessage, Toast.LENGTH_SHORT).show();
-                            Log.e("Registro Fallido", errorMessage);
+                            // Deshacer el incremento del contador
+                            controladorRef.update("registros", FieldValue.increment(-1));
+                            // No permitir más registros
+                            Toast.makeText(RegisterActivity.this, "No se pueden realizar más registros", Toast.LENGTH_SHORT).show();
                         }
+                    });
+                })
+                .addOnFailureListener(e -> {
+                    // Error al incrementar el contador
+                    Toast.makeText(RegisterActivity.this, "Error al incrementar el contador", Toast.LENGTH_SHORT).show();
+                });
+    }
+
+    private void performUserRegistration(String email, String password) {
+        firebaseAuth.createUserWithEmailAndPassword(email, password)
+                .addOnCompleteListener(RegisterActivity.this, task -> {
+                    if (task.isSuccessful()) {
+                        Toast.makeText(RegisterActivity.this, "Registro exitoso", Toast.LENGTH_SHORT).show();
+
+                        // Redirigir a la actividad deseada después del registro
+                        startActivity(new Intent(RegisterActivity.this, EditActivity.class));
+                        finish();
+                    } else {
+                        String errorMessage = task.getException().getMessage();
+                        Toast.makeText(RegisterActivity.this, "Error al registrar. " + errorMessage, Toast.LENGTH_SHORT).show();
+                        Log.e("Registro Fallido", errorMessage);
+
+                        // Deshacer el incremento del contador si el registro falla
+                        DocumentReference controladorRef = FirebaseFirestore.getInstance().collection("users").document("controlador");
+                        controladorRef.update("registros", FieldValue.increment(-1));
                     }
                 });
     }

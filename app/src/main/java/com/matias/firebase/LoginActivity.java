@@ -25,6 +25,7 @@ public class LoginActivity extends AppCompatActivity {
     private Button btnLogin;
     private Button goToRegisterButton;
     private FirebaseAuth mAuth;
+    private DatabaseReference registrationStatusRef;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,6 +38,7 @@ public class LoginActivity extends AppCompatActivity {
         etPassword = findViewById(R.id.etPassword);
         btnLogin = findViewById(R.id.btnLogin);
         goToRegisterButton = findViewById(R.id.btnGoToRegister);
+        registrationStatusRef = FirebaseDatabase.getInstance().getReference("registrationStatus");
 
         btnLogin.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -62,33 +64,8 @@ public class LoginActivity extends AppCompatActivity {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
-                            String userId = mAuth.getCurrentUser().getUid();
-                            DatabaseReference userRef = FirebaseDatabase.getInstance().getReference("users").child(userId);
-
-                            // Acceder a los valores de registro1 y registro2
-                            userRef.addListenerForSingleValueEvent(new ValueEventListener() {
-                                @Override
-                                public void onDataChange(@NonNull DataSnapshot snapshot) {
-                                    boolean registro1 = snapshot.child("registro1").getValue(Boolean.class);
-                                    boolean registro2 = snapshot.child("registro2").getValue(Boolean.class);
-
-                                    // Verificar si ambos registros están en true
-                                    if (registro1 && registro2) {
-                                        // Ambos registros están en true, no permitir el inicio de sesión
-                                        Toast.makeText(LoginActivity.this, "No puedes iniciar sesión. Ambos registros completados.", Toast.LENGTH_SHORT).show();
-                                        mAuth.signOut(); // Cerrar sesión
-                                    } else {
-                                        // Al menos uno de los registros no está en true, permitir el inicio de sesión
-                                        Toast.makeText(LoginActivity.this, "Inicio de sesión exitoso", Toast.LENGTH_SHORT).show();
-                                        startActivity(new Intent(LoginActivity.this, DocumentListActivity.class));
-                                    }
-                                }
-
-                                @Override
-                                public void onCancelled(@NonNull DatabaseError error) {
-                                    Toast.makeText(LoginActivity.this, "Error en la base de datos", Toast.LENGTH_SHORT).show();
-                                }
-                            });
+                            Toast.makeText(LoginActivity.this, "Inicio de sesión exitoso", Toast.LENGTH_SHORT).show();
+                            startActivity(new Intent(LoginActivity.this, EditActivity.class));
                         } else {
                             Toast.makeText(LoginActivity.this, "Inicio de sesión fallido", Toast.LENGTH_SHORT).show();
                         }

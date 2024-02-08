@@ -45,6 +45,9 @@ public class DocumentListActivity extends AppCompatActivity {
                     Intent intent = new Intent(DocumentListActivity.this, EditActivity.class);
                     intent.putExtra("documentId", documentId);
                     intent.putExtra("userId", userId);
+                    intent.putExtra("title", documentSnapshot.getString("title"));
+                    intent.putExtra("body", documentSnapshot.getString("body"));
+                    startActivity(intent);
                     startActivity(intent);
                 } else {
                     // Documento no encontrado, mostrar un mensaje o tomar alguna acción

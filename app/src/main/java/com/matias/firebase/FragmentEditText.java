@@ -13,9 +13,12 @@ import androidx.fragment.app.Fragment;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.database.ValueEventListener; // Importante: Agrega esta línea
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.RemoteMessage;
 import androidx.annotation.NonNull;
@@ -38,23 +41,12 @@ public class FragmentEditText extends Fragment {
         etBody = view.findViewById(R.id.etBody);
         btnUpdate = view.findViewById(R.id.btnUpdate);
         etDocumentId = view.findViewById(R.id.etDocumentId);
-        documentIdEditText = view.findViewById(R.id.editTextDocumentId); // Asociar con el nuevo EditText
-        FirestoreDataExporter dataExporter = new FirestoreDataExporter();
-        dataExporter.exportFirestoreData(getApplicationContext());
+        documentIdEditText = view.findViewById(R.id.editTextDocumentId);
 
-        if (getArguments() != null && getArguments().containsKey("documentId")) {
-            documentId = getArguments().getString("documentId");
-            if (documentId != null) {
-                documentIdEditText.setText(documentId);
-                loadDocumentInfo();
-            } else {
-                new AlertDialog.Builder(getActivity())
-                        .setTitle("Error")
-                        .setMessage("ID del documento es nulo.")
-                        .setPositiveButton("Aceptar", null)
-                        .show();
-            }
-        }
+        // Solo cargar el documento si el ID es "1"
+        documentId = "1";
+        documentIdEditText.setText(documentId);
+        loadDocumentInfo();
 
         btnUpdate.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -103,8 +95,9 @@ public class FragmentEditText extends Fragment {
         });
     }
 
+
     private void updateDocument() {
-        documentId = documentIdEditText.getText().toString().trim(); // Obtener el nuevo ID del documento
+        documentId = documentIdEditText.getText().toString().trim();
 
         if (documentId == null) {
             new AlertDialog.Builder(getActivity())
@@ -162,7 +155,6 @@ public class FragmentEditText extends Fragment {
 
     private void sendEditingNotification(String editorToken) {
         String currentUserToken = FirebaseMessaging.getInstance().getToken().getResult();
-        // hay que mejorar esto
         FirebaseMessaging.getInstance().send(new RemoteMessage.Builder(editorToken)
                 .setMessageId(Integer.toString(0))
                 .addData("title", "Documento en edición")
