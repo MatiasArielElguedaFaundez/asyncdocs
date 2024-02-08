@@ -7,6 +7,7 @@ android {
     namespace = "com.matias.firebase"
     compileSdk = 34
 
+
     defaultConfig {
         applicationId = "com.matias.firebase"
         minSdk = 33
@@ -29,6 +30,9 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
+    }
+    buildFeatures {
+        viewBinding = true
     }
 }
 

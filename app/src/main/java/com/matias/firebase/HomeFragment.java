@@ -1,8 +1,9 @@
 package com.matias.firebase;
 
-import static android.app.PendingIntent.getActivity;
-
+import android.content.Context;
 import android.os.Bundle;
+import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,124 +11,126 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import androidx.fragment.app.Fragment;
-
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.messaging.FirebaseMessaging;
-import com.google.firebase.messaging.RemoteMessage;
-
 import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
 
-public class FragmentEditText extends Fragment {
-    private EditText etTitle, etBody;
-    private Button btnUpdate;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+
+public class HomeFragment extends Fragment {
+
+    private static final String TAG = "HomeFragment";
     private FirebaseAuth mAuth;
-    private FirebaseFirestore db;
-    private String editingUserId;
-    private String documentId;
-    private String editorFcmToken;
+
+    private EditText emailEditText;
+    private EditText passwordEditText;
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.activity_document, container, false);
-
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.fragment_home, container, false);
         mAuth = FirebaseAuth.getInstance();
-        db = FirebaseFirestore.getInstance();
 
-        etTitle = view.findViewById(R.id.etTitle);
-        etBody = view.findViewById(R.id.etBody);
-        btnUpdate = view.findViewById(R.id.btnUpdate);
+        // Obtener referencias de vistas
+        emailEditText = view.findViewById(R.id.editTextTextEmailAddress);
+        passwordEditText = view.findViewById(R.id.editTextTextPassword);
 
-        if (getArguments() != null && getArguments().containsKey("documentId")) {
-            documentId = getArguments().getString("documentId");
-        }
-        if (documentId != null) {
-            loadDocumentInfo();
-        } else {
-            Toast.makeText(getActivity(), "ID del documento es nulo", Toast.LENGTH_SHORT).show();
-        }
+        // Configurar listeners para los botones
+        Button loginButton = view.findViewById(R.id.logInButton);
+        Button createAccountButton = view.findViewById(R.id.createAccountButton);
 
-        btnUpdate.setOnClickListener(new View.OnClickListener() {
+        loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                updateDocument();
+                // Capturar entradas del usuario
+                String email = emailEditText.getText().toString();
+                String password = passwordEditText.getText().toString();
+
+                signIn(email, password);
+            }
+        });
+
+        createAccountButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Capturar entradas del usuario
+                String email = emailEditText.getText().toString();
+                String password = passwordEditText.getText().toString();
+                createAccount(email, password);
             }
         });
 
         return view;
     }
 
-    private void loadDocumentInfo() {
-        DocumentReference documentRef = db.collection("documents").document(documentId);
-        documentRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-            @Override
-            public void onSuccess(DocumentSnapshot documentSnapshot) {
-                if (documentSnapshot.exists()) {
-                    String currentTitle = documentSnapshot.getString("title");
-                    String currentBody = documentSnapshot.getString("body");
-                    editingUserId = documentSnapshot.getString("editingUserId");
-                    editorFcmToken = documentSnapshot.getString("fcmToken");
-                    etTitle.setText(currentTitle);
-                    etBody.setText(currentBody);
-                    if (editingUserId != null && mAuth.getCurrentUser() != null && !editingUserId.equals(mAuth.getCurrentUser().getUid())) {
-                        showEditingMessage();
-                        sendEditingNotification(editorFcmToken);
-                    }
-                } else {
-                    Toast.makeText(getActivity(), "El documento no existe", Toast.LENGTH_SHORT).show();
-                }
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                Toast.makeText(getActivity(), "Error al cargar el documento", Toast.LENGTH_SHORT).show();
-            }
-        });
+    @Override
+    public void onStart() {
+        super.onStart();
+        FirebaseUser currentUser = mAuth.getCurrentUser();
     }
 
-    private void updateDocument() {
-        String newTitle = etTitle.getText().toString().trim();
-        String newBody = etBody.getText().toString().trim();
-
-        if (newTitle.isEmpty() || newBody.isEmpty()) {
-            Toast.makeText(getActivity(), "Por favor, complete todos los campos", Toast.LENGTH_SHORT).show();
+    public void createAccount(String email, String password) {
+        if (TextUtils.isEmpty(email) || TextUtils.isEmpty(password)) {
+            // Manejar el caso en el que el correo electrónico o la contraseña sea nulo o una cadena vacía
+            Toast.makeText(requireContext(), "Correo electrónico o contraseña vacíos", Toast.LENGTH_SHORT).show();
             return;
         }
-        DocumentReference documentRef = db.collection("documents").document(documentId);
-        documentRef
-                .update("title", newTitle, "body", newBody)
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
+
+        mAuth.createUserWithEmailAndPassword(email, password)
+                .addOnCompleteListener(requireActivity(), new OnCompleteListener<AuthResult>() {
                     @Override
-                    public void onSuccess(Void aVoid) {
-                        Toast.makeText(getActivity(), "Documento actualizado correctamente", Toast.LENGTH_SHORT).show();
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Toast.makeText(getActivity(), "Error al actualizar el documento", Toast.LENGTH_SHORT).show();
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        if (task.isSuccessful()) {
+                            Log.d(TAG, "createUserWithEmail:success");
+                            FirebaseUser user = mAuth.getCurrentUser();
+                            // Resto del código...
+                        } else {
+                            Log.w(TAG, "createUserWithEmail:failure", task.getException());
+                            String errorMessage = task.getException().getMessage();
+                            Toast.makeText(requireContext(), "Authentication failed: " + errorMessage, Toast.LENGTH_SHORT).show();
+                        }
                     }
                 });
     }
 
-    private void showEditingMessage() {
-        Toast.makeText(getActivity(), "Este documento está siendo editado por otro usuario", Toast.LENGTH_SHORT).show();
-    }
+    public void signIn(String email, String password) {
+        if (TextUtils.isEmpty(email) || TextUtils.isEmpty(password)) {
+            // Manejar el caso en el que el correo electrónico o la contraseña sea nulo o una cadena vacía
+            Toast.makeText(requireContext(), "Correo electrónico o contraseña vacíos", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
-    private void sendEditingNotification(String editorToken) {
-        String currentUserToken = "token_del_usuario_actual";
+        mAuth.signInWithEmailAndPassword(email, password)
+                .addOnCompleteListener(requireActivity(), new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        if (task.isSuccessful()) {
+                            Log.d(TAG, "signInWithEmail:success");
+                            FirebaseUser user = mAuth.getCurrentUser();
+                            Context context = requireContext();
 
-        // hay que mejorar esto
-        FirebaseMessaging.getInstance().send(new RemoteMessage.Builder(editorToken)
-                .setMessageId(Integer.toString(0))
-                .addData("title", "Documento en edición")
-                .addData("body", "El documento que estás editando está siendo modificado por otro usuario.")
-                .build());
-        Toast.makeText(getActivity(), "Notificación enviada al usuario que está editando.", Toast.LENGTH_SHORT).show();
+                            NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment_content_main);
+                            navController.navigate(R.id.action_homeFragment_to_documentFragment);
+
+                            // Opcional: Puedes pasar información adicional al DocumentFragment utilizando un Bundle
+                            Bundle bundle = new Bundle();
+                            bundle.putString("userId", user.getUid());
+                            // Agrega más información si es necesario
+                            navController.navigate(R.id.action_homeFragment_to_documentFragment, bundle);
+
+                            // Eliminar homeFragment del back stack
+                            navController.popBackStack(R.id.homeFragment, false);
+                    } else {
+                            Log.w(TAG, "signInWithEmail:failure", task.getException());
+                            String errorMessage = task.getException().getMessage();
+                            Toast.makeText(requireContext(), "Authentication failed: " + errorMessage, Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
     }
 }

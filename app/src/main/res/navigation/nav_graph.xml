@@ -1,21 +1,22 @@
-<?xml version="1.0" encoding="utf-8"?>
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/emailPasswordActivity">
-
-    <activity
-        android:id="@+id/emailPasswordActivity"
-        android:name="com.matias.firebase.EmailPasswordActivity"
-        android:label="EmailPasswordActivity" />
-    <activity
-        android:id="@+id/documentListActivity"
-        android:name="com.matias.firebase.DocumentListActivity"
-        android:label="activity_document_list"
-        tools:layout="@layout/activity_document_list" />
+    app:startDestination="@id/homeFragment">
     <fragment
-        android:id="@+id/fragmentEditText"
-        android:name="com.matias.firebase.FragmentEditText"
-        android:label="FragmentEditText" />
+        android:id="@+id/homeFragment"
+        android:name="com.matias.firebase.HomeFragment"
+        android:label="HomeFragment" >
+        <action
+            android:id="@+id/action_homeFragment_to_documentFragment"
+            app:destination="@id/documentFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/documentFragment"
+        android:name="com.matias.firebase.DocumentFragment"
+        android:label="DocumentFragment" >
+        <action
+            android:id="@+id/action_documentFragment_to_homeFragment"
+            app:destination="@id/homeFragment" />
+    </fragment>
 </navigation>
