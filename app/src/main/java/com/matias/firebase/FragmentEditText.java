@@ -1,36 +1,27 @@
 package com.matias.firebase;
 
-import static com.firebase.ui.auth.AuthUI.getApplicationContext;
-
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
+
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.database.ValueEventListener; // Importante: Agrega esta línea
-import com.google.firebase.messaging.FirebaseMessaging;
-import com.google.firebase.messaging.RemoteMessage;
-import androidx.annotation.NonNull;
+import com.google.firebase.firestore.ListenerRegistration;
 
 public class FragmentEditText extends Fragment {
     private EditText etTitle, etBody, etDocumentId, documentIdEditText;
     private Button btnUpdate;
     private FirebaseAuth mAuth;
     private FirebaseFirestore db;
-    private String editingUserId;
+    private ListenerRegistration editingListener;
     private String documentId;
-    private String editorFcmToken;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -40,71 +31,39 @@ public class FragmentEditText extends Fragment {
         etTitle = view.findViewById(R.id.etTitle);
         etBody = view.findViewById(R.id.etBody);
         btnUpdate = view.findViewById(R.id.btnUpdate);
-        etDocumentId = view.findViewById(R.id.etDocumentId);
-        documentIdEditText = view.findViewById(R.id.editTextDocumentId);
 
-        // Solo cargar el documento si el ID es "1"
         documentId = "1";
-        documentIdEditText.setText(documentId);
         loadDocumentInfo();
 
-        btnUpdate.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                updateDocument();
-            }
-        });
+        btnUpdate.setOnClickListener(v -> updateDocument());
 
         return view;
     }
 
     private void loadDocumentInfo() {
         DocumentReference documentRef = db.collection("documents").document(documentId);
-        documentRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-            @Override
-            public void onSuccess(DocumentSnapshot documentSnapshot) {
-                if (documentSnapshot.exists()) {
-                    String currentTitle = documentSnapshot.getString("title");
-                    String currentBody = documentSnapshot.getString("body");
-                    editingUserId = documentSnapshot.getString("editingUserId");
-                    editorFcmToken = documentSnapshot.getString("fcmToken");
-                    etTitle.setText(currentTitle);
-                    etBody.setText(currentBody);
-
-                    if (editingUserId != null && mAuth.getCurrentUser() != null && !editingUserId.equals(mAuth.getCurrentUser().getUid())) {
-                        showEditingMessage();
-                        sendEditingNotification(editorFcmToken);
-                    }
-                } else {
-                    new AlertDialog.Builder(getActivity())
-                            .setTitle("Error")
-                            .setMessage("El documento no existe.")
-                            .setPositiveButton("Aceptar", null)
-                            .show();
-                }
+        editingListener = documentRef.addSnapshotListener((documentSnapshot, e) -> {
+            if (e != null) {
+                handleError(e.getMessage());
+                return;
             }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                new AlertDialog.Builder(getActivity())
-                        .setTitle("Error")
-                        .setMessage("Error al cargar el documento.")
-                        .setPositiveButton("Aceptar", null)
-                        .show();
+
+            if (documentSnapshot != null && documentSnapshot.exists()) {
+                String currentTitle = documentSnapshot.getString("title");
+                String currentBody = documentSnapshot.getString("body");
+                etTitle.setText(currentTitle);
+                etBody.setText(currentBody);
+            } else {
+                handleError("El documento no existe.");
             }
         });
     }
-
 
     private void updateDocument() {
         documentId = documentIdEditText.getText().toString().trim();
 
         if (documentId == null) {
-            new AlertDialog.Builder(getActivity())
-                    .setTitle("Error")
-                    .setMessage("ID del documento es nulo.")
-                    .setPositiveButton("Aceptar", null)
-                    .show();
+            handleError("ID del documento es nulo.");
             return;
         }
 
@@ -112,58 +71,42 @@ public class FragmentEditText extends Fragment {
         String newBody = etBody.getText().toString().trim();
 
         if (newTitle.isEmpty() || newBody.isEmpty()) {
-            new AlertDialog.Builder(getActivity())
-                    .setTitle("Error")
-                    .setMessage("Por favor, complete todos los campos.")
-                    .setPositiveButton("Aceptar", null)
-                    .show();
+            handleError("Por favor, complete todos los campos.");
             return;
         }
 
         DocumentReference documentRef = db.collection("documents").document(documentId);
-        documentRef
-                .update("title", newTitle, "body", newBody)
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        new AlertDialog.Builder(getActivity())
-                                .setTitle("Éxito")
-                                .setMessage("Documento actualizado correctamente.")
-                                .setPositiveButton("Aceptar", null)
-                                .show();
-                    }
+        documentRef.update("title", newTitle, "body", newBody)
+                .addOnSuccessListener(aVoid -> {
+                    showUpdateDialog();
                 })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        new AlertDialog.Builder(getActivity())
-                                .setTitle("Error")
-                                .setMessage("Error al actualizar el documento.")
-                                .setPositiveButton("Aceptar", null)
-                                .show();
-                    }
-                });
+                .addOnFailureListener(e -> handleError("Error al actualizar el documento."));
     }
 
-    private void showEditingMessage() {
-        new AlertDialog.Builder(getActivity())
-                .setTitle("Documento en edición")
-                .setMessage("Este documento está siendo editado por otro usuario.")
+    private void showUpdateDialog() {
+        new AlertDialog.Builder(requireActivity())
+                .setTitle("Documento actualizado")
+                .setMessage("El documento ha sido actualizado por otro usuario.")
+                .setPositiveButton("Reiniciar", (dialog, which) -> {
+                    // Vuelve a cargar el documento con los datos actualizados
+                    loadDocumentInfo();
+                })
+                .show();
+    }
+
+    private void handleError(String errorMessage) {
+        new AlertDialog.Builder(requireActivity())
+                .setTitle("Error")
+                .setMessage(errorMessage)
                 .setPositiveButton("Aceptar", null)
                 .show();
     }
 
-    private void sendEditingNotification(String editorToken) {
-        String currentUserToken = FirebaseMessaging.getInstance().getToken().getResult();
-        FirebaseMessaging.getInstance().send(new RemoteMessage.Builder(editorToken)
-                .setMessageId(Integer.toString(0))
-                .addData("title", "Documento en edición")
-                .addData("body", "El documento que estás editando está siendo modificado por otro usuario.")
-                .build());
-        new AlertDialog.Builder(getActivity())
-                .setTitle("Éxito")
-                .setMessage("Notificación enviada al usuario que está editando.")
-                .setPositiveButton("Aceptar", null)
-                .show();
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (editingListener != null) {
+            editingListener.remove();
+        }
     }
 }
