@@ -79,12 +79,20 @@ public class LoginActivity extends AppCompatActivity {
                     public void onComplete(@NonNull Task<String> task) {
                         if (task.isSuccessful() && task.getResult() != null) {
                             String token = task.getResult();
-                            // Aquí tienes el token
                             Log.d("Token", token);
                         } else {
                             Log.e("FCM Token", "Error al obtener el token", task.getException());
                         }
                     }
                 });
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+    }
+    @Override
+    public void onResume() {
+        super.onResume();
     }
 }

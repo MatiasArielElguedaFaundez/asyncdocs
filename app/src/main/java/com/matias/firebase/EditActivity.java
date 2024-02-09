@@ -15,4 +15,12 @@ public class EditActivity extends AppCompatActivity {
                     .commit();
         }
     }
+    @Override
+    protected void onPause() {
+        super.onPause();
+    }
+    @Override
+    protected void onResume() {
+        super.onResume();
+    }
 }
