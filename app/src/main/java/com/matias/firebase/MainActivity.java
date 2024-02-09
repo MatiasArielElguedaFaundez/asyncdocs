@@ -1,6 +1,9 @@
 package com.matias.firebase;
 
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 
 import androidx.annotation.Nullable;
@@ -22,7 +25,16 @@ public class MainActivity extends AppCompatActivity {
                 //loginActivity
                 startActivity(new Intent(MainActivity.this, LoginActivity.class));
                 finish();
+
             }
         }, 2000);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationChannel channel = new NotificationChannel(
+                    getString(R.string.default_notification_channel_id),
+                    "Documento Actualizado",
+                    NotificationManager.IMPORTANCE_DEFAULT);
+            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+            notificationManager.createNotificationChannel(channel);
+        }
     }
 }

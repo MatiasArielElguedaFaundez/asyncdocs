@@ -44,7 +44,7 @@ dependencies {
     implementation("androidx.navigation:navigation-ui:2.7.6")
     implementation("com.google.firebase:firebase-auth:22.3.1")
     implementation("com.google.firebase:firebase-firestore:24.10.1")
-    implementation("com.google.firebase:firebase-messaging:23.4.0")
+    implementation("com.google.firebase:firebase-messaging")
     implementation("com.github.bumptech.glide:glide:4.14.2")
     implementation("com.github.bumptech.glide:compiler:4.12.0")
     implementation("com.google.code.gson:gson:2.8.9")

@@ -8,5 +8,7 @@
     <string name="password_hint">Enter your password</string>
     <string name="fetch_document">Update Document</string>
     <string name="loading">Loading App wait please....</string>
-
+    <string name="title">Title</string>
+    <string name="body">Body</string>
+    <string name="default_notification_channel_id" translatable="false">default_channel_id</string>
 </resources>

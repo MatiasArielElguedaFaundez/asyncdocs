@@ -18,16 +18,13 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.messaging.FirebaseMessaging;
-import com.google.firebase.messaging.RemoteMessage;
 
 public class FragmentEditText extends Fragment {
-    private EditText etTitle, etBody, etDocumentId, documentIdEditText;
+    private EditText etTitle, etBody;
     private Button btnUpdate;
     private FirebaseAuth mAuth;
     private FirebaseFirestore db;
-    private String editingUserId;
     private String documentId;
-    private String editorFcmToken;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -59,15 +56,8 @@ public class FragmentEditText extends Fragment {
                 if (documentSnapshot.exists()) {
                     String currentTitle = documentSnapshot.getString("title");
                     String currentBody = documentSnapshot.getString("body");
-                    editingUserId = documentSnapshot.getString("editingUserId");
-                    editorFcmToken = documentSnapshot.getString("fcmToken");
                     etTitle.setText(currentTitle);
                     etBody.setText(currentBody);
-
-                    if (editingUserId != null && mAuth.getCurrentUser() != null && !editingUserId.equals(mAuth.getCurrentUser().getUid())) {
-                        showEditingMessage();
-                        sendEditingNotification(editorFcmToken);
-                    }
                 } else {
                     new AlertDialog.Builder(getActivity())
                             .setTitle("Error")
@@ -88,9 +78,7 @@ public class FragmentEditText extends Fragment {
         });
     }
 
-
     private void updateDocument() {
-
         if (documentId == null) {
             new AlertDialog.Builder(getActivity())
                     .setTitle("Error")
@@ -137,27 +125,6 @@ public class FragmentEditText extends Fragment {
                 });
     }
 
-    private void showEditingMessage() {
-        new AlertDialog.Builder(getActivity())
-                .setTitle("Documento en edición")
-                .setMessage("Este documento está siendo editado por otro usuario.")
-                .setPositiveButton("Aceptar", null)
-                .show();
-    }
-
-    private void sendEditingNotification(String editorToken) {
-        String currentUserToken = FirebaseMessaging.getInstance().getToken().getResult();
-        FirebaseMessaging.getInstance().send(new RemoteMessage.Builder(editorToken)
-                .setMessageId(Integer.toString(0))
-                .addData("title", "Documento en edición")
-                .addData("body", "El documento que estás editando está siendo modificado por otro usuario.")
-                .build());
-        new AlertDialog.Builder(getActivity())
-                .setTitle("Éxito")
-                .setMessage("Notificación enviada al usuario que está editando.")
-                .setPositiveButton("Aceptar", null)
-                .show();
-    }
     @Override
     public void onPause() {
         super.onPause();

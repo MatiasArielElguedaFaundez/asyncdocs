@@ -35,26 +35,28 @@
             <EditText
                 android:id="@+id/etTitle"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="40dp"
                 android:layout_marginTop="16dp"
                 android:layout_marginBottom="16dp"
                 android:background="#FFFFFF"
                 android:hint="@string/title"
                 android:inputType="text"
                 android:padding="12dp"
-                android:textSize="20sp"
+                android:textSize="16sp"
                 app:layout_constraintTop_toBottomOf="@+id/imageView" />
 
             <EditText
                 android:id="@+id/etBody"
                 android:layout_width="match_parent"
-                android:layout_height="380dp"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
                 android:background="#FFFFFF"
                 android:hint="@string/body"
                 android:inputType="textMultiLine"
                 android:minLines="5"
-                android:textSize="16sp"
-                app:layout_constraintTop_toBottomOf="@+id/fragment_container" />
+                android:textSize="10sp"
+                app:layout_constraintTop_toBottomOf="@+id/fragment_container"
+                app:layout_constraintBottom_toTopOf="@+id/btnUpdate" />
 
             <Button
                 android:id="@+id/btnUpdate"
@@ -63,7 +65,7 @@
                 android:backgroundTint="@color/primary"
                 android:text="@string/fetch_document"
                 android:textColor="@android:color/white"
-                app:layout_constraintTop_toBottomOf="@+id/etBody" />
+                app:layout_constraintBottom_toBottomOf="parent" />
         </LinearLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>
