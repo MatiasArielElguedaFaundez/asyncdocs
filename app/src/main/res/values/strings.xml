@@ -7,5 +7,6 @@
     <string name="email_hint">Enter your email</string>
     <string name="password_hint">Enter your password</string>
     <string name="fetch_document">Update Document</string>
+    <string name="loading">Loading App wait please....</string>
 
 </resources>
