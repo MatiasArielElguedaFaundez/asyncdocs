@@ -2,6 +2,7 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
-    <color name="primary">#153E90</color> <!-- Naranja oscuro menos brillante para el fondo -->
+    <color name="primary">#153E90</color>
     <color name="secondary">#99BC85</color>
+
 </resources>
